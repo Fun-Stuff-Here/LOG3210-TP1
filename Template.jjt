@@ -82,7 +82,8 @@ TOKEN :
 	<DO:"do">|
 	<IF:"if">|
 	<ELSE:"else">|
-	<FOR:"for">
+	<FOR:"for">|
+	<RETURN:"return">
 
 
 	// À compléter au besoin
@@ -116,8 +117,9 @@ TOKEN :
 	< SEMICOLON: ";" > |
 	< COMMA: "," > |
 	< #AND: "&&" > |
-	< #OR: "||" >
+	< #OR: "||" >|
 	// À compléter au besoin
+	<ARROW: "->">
 }
 
 
@@ -136,8 +138,11 @@ TOKEN :
 
     > |
     <#EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >|
-    <BOOLEAN: "true"|"false">
+    <BOOLEAN: "true"|"false">|
+    <SIGNATURETYPE:<IDENTIFIER> <IDENTIFIER> >
 }
+
+
 
 //
 // SYNTAX ANALYSIS
@@ -147,16 +152,12 @@ TOKEN :
 void Stmt() : { }
 {
 	AssignStmt() <SEMICOLON>|
-	InstructionStm()
+    WhileStmt()|
+    DoWhileStmt()|
+    IfStmt()|
+    ForStmt()|
+	ReturnStmt()
 
-}
-
-void InstructionStm():{}
-{
-	WhileStmt()|
-	DoWhileStmt()|
-	IfStmt()|
-	ForStmt()
 }
 
 ASTProgram Program() : { }
@@ -234,11 +235,6 @@ void DoWhileStmt():{}
 {
     <DO> <LACC> Block() <RACC> <WHILE> <LPAREN> Expr() <RPAREN> <SEMICOLON>
 }
-//TODO
-void LamdaFunctionExpr():{}
-{
-    <LPAREN> <RPAREN>
-}
 
 void IfStmt():{}
 {
@@ -257,3 +253,15 @@ void ForStmt():{}
     <FOR> <LPAREN> (AssignStmt())? <SEMICOLON> (Expr())? <SEMICOLON> (AssignStmt())? <RPAREN>
     BlockOrStatement()
 }
+
+void ReturnStmt():{}
+{
+    <RETURN> Expr() <SEMICOLON>
+}
+
+void LamdaFunctionExpr():{}
+{
+    <LPAREN> (<SIGNATURETYPE> (<COMMA> <SIGNATURETYPE> )*)? <RPAREN> (<ARROW> BlockOrStatement()|Stmt())
+}
+
+
