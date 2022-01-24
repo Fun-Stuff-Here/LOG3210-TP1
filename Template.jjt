@@ -242,13 +242,10 @@ void IfStmt():{}
 {
     <IF> <LPAREN> Expr() <RPAREN>
     BlockOrStatement()
-    (ElseExpr())?
-
+    ElseStmt()
 }
 
-void ElseExpr():{}
+void ElseStmt():{}
 {
-        (LOOKAHEAD(2) <ELSE> <IF> <LPAREN> Expr() <RPAREN>
-                                     <LACC> Block() <RACC> |
-                      <ELSE> <LACC> Block() <RACC> )
+    (LOOKAHEAD(2) <ELSE> BlockOrStatement())?
 }
