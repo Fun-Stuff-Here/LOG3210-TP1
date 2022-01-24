@@ -77,7 +77,12 @@ MORE :
 TOKEN :
 {
 	< PRINT: "print" > |
-	< INPUT: "input" >
+	< INPUT: "input" >|
+	<WHILE:"while" >|
+	<DO:"do">|
+	<IF:"if">|
+	<ELSE:"else">
+
 
 	// À compléter au besoin
 }
@@ -121,23 +126,35 @@ TOKEN :
 	< IDENTIFIER: <LETTER> ( <LETTER> | <DIGIT> )* > |
 	< #LETTER: ["a"-"z","A"-"Z","_"] > |
 	< #DIGIT: ["0"-"9"] > |
-	< INTEGER: ["1"-"9"] (["0"-"9"])* | "0" > |
-	//TODO: Caution! Allows numbers such as "0000.23"... to fix!!!
-	< REAL: (<INTEGER>)+ "." (["0"-"9"])+ (<EXPONENT>)? |
-    			  (<INTEGER>)+ <EXPONENT> > |
-    < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+	< INTEGER: <NONEZEROINTEGER> | "0" > |
+	<#NONEZEROINTEGER: ["1"-"9"] (["0"-"9"])*>|
+	<REAL: (<MINUS>)? <POSITIVEREAL> >|
+	<#POSITIVEREAL: ( (<NONEZEROINTEGER>)+|"0") "." (["0"-"9"])* (<EXPONENT>)? |
+    			  (<NONEZEROINTEGER>)+ <EXPONENT>|
+    			  "." (["0"-"9"])+ (<EXPONENT>)?
+
+    > |
+    <#EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >|
+    <BOOLEAN: "true"|"false">
 }
 
 //
 // SYNTAX ANALYSIS
 //
 
-
-
 // à compléter
 void Stmt() : { }
 {
-	AssignStmt() <SEMICOLON>
+	AssignStmt() <SEMICOLON>|
+	InstructionStm()
+
+}
+
+void InstructionStm():{}
+{
+	WhileStmt()|
+	DoWhileStmt()|
+	IfStmt()
 }
 
 ASTProgram Program() : { }
@@ -153,12 +170,22 @@ void Block() : { }
 // à finir -- commencez ici!
 void AssignStmt() : { }
 {
-    Identifier()
+    Identifier() <ASSIGN> Expr()
 }
 
 void Expr() : {}
 {
-    IntExpr()
+    IntExpr() | RealExpr() | BoolExpr()|LamdaFunctionExpr()
+}
+
+void BoolExpr():{}
+{
+<BOOLEAN>
+}
+
+void RealExpr():{}
+{
+    <REAL>
 }
 
 void IntExpr() : { }
@@ -187,4 +214,41 @@ void Identifier() : { }
 void IntValue() : { }
 {
 	<INTEGER>
+}
+
+void WhileStmt():{}
+{
+    <WHILE> <LPAREN> Expr() <RPAREN>
+    BlockOrStatement()
+}
+
+void BlockOrStatement():{}
+{
+<LACC> Block() <RACC>
+|Stmt()
+}
+
+void DoWhileStmt():{}
+{
+    <DO> <LACC> Block() <RACC> <WHILE> <LPAREN> Expr() <RPAREN> <SEMICOLON>
+}
+//TODO
+void LamdaFunctionExpr():{}
+{
+    <LPAREN> <RPAREN>
+}
+
+void IfStmt():{}
+{
+    <IF> <LPAREN> Expr() <RPAREN>
+    BlockOrStatement()
+    (ElseExpr())?
+
+}
+
+void ElseExpr():{}
+{
+        (LOOKAHEAD(2) <ELSE> <IF> <LPAREN> Expr() <RPAREN>
+                                     <LACC> Block() <RACC> |
+                      <ELSE> <LACC> Block() <RACC> )
 }
