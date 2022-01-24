@@ -83,7 +83,8 @@ TOKEN :
 	<IF:"if">|
 	<ELSE:"else">|
 	<FOR:"for">|
-	<RETURN:"return">
+	<RETURN:"return">|
+	<BOOLEAN: "true"|"false">
 
 
 	// À compléter au besoin
@@ -138,8 +139,8 @@ TOKEN :
 
     > |
     <#EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >|
-    <BOOLEAN: "true"|"false">|
-    <SIGNATURETYPE:<IDENTIFIER> <IDENTIFIER> >
+
+    <SIGNATURETYPE:<IDENTIFIER> (" ")+ <IDENTIFIER>>
 }
 
 
@@ -178,7 +179,7 @@ void AssignStmt() : { }
 
 void Expr() : {}
 {
-    IntExpr() | RealExpr() | BoolExpr()|LamdaFunctionExpr()
+    IntExpr() | RealExpr() | BoolExpr() |LamdaFunctionExpr()
 }
 
 void BoolExpr():{}
@@ -261,7 +262,7 @@ void ReturnStmt():{}
 
 void LamdaFunctionExpr():{}
 {
-    <LPAREN> (<SIGNATURETYPE> (<COMMA> <SIGNATURETYPE> )*)? <RPAREN> (<ARROW> BlockOrStatement()|Stmt())
+    <LPAREN> (<SIGNATURETYPE>(<COMMA> <SIGNATURETYPE>)*)? <RPAREN> (<ARROW> BlockOrStatement()|Stmt())
 }
 
 
