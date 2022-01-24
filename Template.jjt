@@ -81,7 +81,8 @@ TOKEN :
 	<WHILE:"while" >|
 	<DO:"do">|
 	<IF:"if">|
-	<ELSE:"else">
+	<ELSE:"else">|
+	<FOR:"for">
 
 
 	// À compléter au besoin
@@ -154,7 +155,8 @@ void InstructionStm():{}
 {
 	WhileStmt()|
 	DoWhileStmt()|
-	IfStmt()
+	IfStmt()|
+	ForStmt()
 }
 
 ASTProgram Program() : { }
@@ -248,4 +250,10 @@ void IfStmt():{}
 void ElseStmt():{}
 {
     (LOOKAHEAD(2) <ELSE> BlockOrStatement())?
+}
+
+void ForStmt():{}
+{
+    <FOR> <LPAREN> (AssignStmt())? <SEMICOLON> (Expr())? <SEMICOLON> (AssignStmt())? <RPAREN>
+    BlockOrStatement()
 }
