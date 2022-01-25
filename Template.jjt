@@ -84,7 +84,10 @@ TOKEN :
 	<ELSE:"else">|
 	<FOR:"for">|
 	<RETURN:"return">|
-	<BOOLEAN: "true"|"false">
+	<BOOLEAN: "true"|"false">|
+	<SWITCH: "switch">|
+	<DEAFULT: "default">|
+	<CASE:"case">
 	// À compléter au besoin
 }
 
@@ -155,7 +158,8 @@ void Stmt() : { }
     DoWhileStmt()|
     IfStmt()|
     ForStmt()|
-	ReturnStmt()
+	ReturnStmt()|
+	SwitchStmt()
 
 }
 
@@ -267,3 +271,23 @@ void SignatureTypeExpr():{}
 {
     <SIGNATURETYPE>
 }
+
+void SwitchStmt():{}
+{
+    <SWITCH> <LPAREN> Expr() <RPAREN> <LACC>
+        (CaseExpr())+
+        (DefaultExpr()) ?
+
+    <RACC>
+}
+
+void CaseExpr():{}
+{
+<CASE> Expr() <COLON> BlockOrStatement()
+}
+
+void DefaultExpr():{}
+{
+<DEAFULT> <COLON> BlockOrStatement()
+}
+
