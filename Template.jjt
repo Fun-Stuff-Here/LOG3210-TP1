@@ -76,8 +76,8 @@ MORE :
 // Keywords
 TOKEN :
 {
-	< PRINT: "print" > |
-	< INPUT: "input" >|
+	<PRINT: "print" > |
+	<INPUT: "input" >|
 	<WHILE:"while" >|
 	<DO:"do">|
 	<IF:"if">|
@@ -175,38 +175,41 @@ void AssignStmt() : { }
     Identifier() <ASSIGN> Expr() <SEMICOLON>
 }
 
-void Expr() : {}
+void Expr()#void : {}
 {
-    IntExpr() | RealExpr() | BoolExpr() |LamdaFunctionExpr()
+    OpExpr() //| LamdaFunctionExpr()
 }
 
-void BoolExpr():{}
+void BoolValue():{}
 {
-<BOOLEAN>
+    <BOOLEAN>
 }
 
-void RealExpr():{}
+void RealValue():{}
 {
     <REAL>
 }
 
-void IntExpr() : { }
+//void IntExpr() : { }
+//{
+//    IntLogicExpr()
+//}
+
+//void IntLogicExpr() : { }
+//{
+//    IntBasicExpr() (LOOKAHEAD(2)
+//         <LOGIC> IntBasicExpr())*
+//}
+
+void BasicExpr()#void:{}
 {
-    IntLogicExpr()
+    Identifier() | IntValue() | RealValue() | BoolValue()
 }
 
-void IntLogicExpr() : { }
-{
-    IntBasicExpr() (LOOKAHEAD(2)
-         <LOGIC> IntBasicExpr()
-    )*
-}
-
-void IntBasicExpr() : { }
-{
-	Identifier() |
-	IntValue()
-}
+//void IntBasicExpr() : { }
+//{
+//	IntValue()
+//}
 
 void Identifier() : { }
 {
@@ -226,8 +229,8 @@ void WhileStmt():{}
 
 void BlockOrStatement():{}
 {
-<LACC> Block() <RACC>
-|Stmt()
+    <LACC> Block() <RACC>
+    |Stmt()
 }
 
 void DoWhileStmt():{}
@@ -258,12 +261,98 @@ void ReturnStmt():{}
     <RETURN> Expr() <SEMICOLON>
 }
 
-void LamdaFunctionExpr():{}
+//void LamdaFunctionExpr():{} à remettre
+//{
+//    <LPAREN> (SignatureTypeExpr()(<COMMA> SignatureTypeExpr())*)? <RPAREN> (<ARROW> BlockOrStatement()|Stmt())
+//}
+//
+//void SignatureTypeExpr():{} à remettre
+//{
+//    <SIGNATURETYPE>
+//}
+
+void OpExpr()#void:{}
 {
-    <LPAREN> (SignatureTypeExpr()(<COMMA> SignatureTypeExpr())*)? <RPAREN> (<ARROW> BlockOrStatement()|Stmt())
+    OpExprPrio1()
 }
 
-void SignatureTypeExpr():{}
+void OpExprPrio1()#void: {}
 {
-    <SIGNATURETYPE>
+
+    OpExprPrio2() LogicExpr()
+}
+
+void OpExprPrio2()#void:{}
+{
+    OpExprPrio3() CompExpr()
+}
+
+void OpExprPrio3()#void:{}
+{
+    OpExprPrio4() AddOrSubExpr()
+}
+
+void OpExprPrio4()#void:{}
+{
+    OpExprPrio5() MultOrDivExpr()
+}
+
+void OpExprPrio5()#void:{}
+{
+   (<MINUS>)*#Négatif(>0) OpExprPrio6() //voit pas le minus????
+}
+
+void OpExprPrio6()#void:{}
+{
+    (<NOT>)*#Non_logique(>0) OpExprPrio7()//on voit pas le non logique??
+}
+
+void OpExprPrio7()#void:{}
+{
+    ParExpr()
+}
+
+void LogicExpr()#void:{}
+{
+    (<LOGIC> OpExprPrio2() LogicExpr())?#Logique(>0)
+}
+
+void CompExpr()#void:{}
+{
+    (<COMPARE> OpExprPrio3() CompExpr())?#Comparaison(>0)
+}
+
+void AddOrSubExpr()#void:{}
+{
+    ((AddExpr() | SubExpr()) AddOrSubExpr())?
+}
+
+void AddExpr()#Addition:{}
+{
+   <PLUS> OpExprPrio4()
+}
+
+void SubExpr()#Soustraction:{}
+{
+    <MINUS> OpExprPrio4()
+}
+
+void MultOrDivExpr()#void:{}
+{
+    ((MultExpr() | DivExpr()) MultOrDivExpr())?
+}
+
+void MultExpr()#Multiplication:{}
+{
+    <FOIS> OpExprPrio5()
+}
+
+void DivExpr()#Division:{}
+{
+    <DIV> OpExprPrio5()
+}
+
+void ParExpr()#void:{}
+{
+    (<LPAREN> OpExprPrio1() <RPAREN>)#Parenthèses | BasicExpr()
 }
