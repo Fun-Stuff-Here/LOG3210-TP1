@@ -84,7 +84,10 @@ TOKEN :
 	<ELSE:"else">|
 	<FOR:"for">|
 	<RETURN:"return">|
-	<BOOLEAN: "true"|"false">
+	<BOOLEAN: "true"|"false">|
+	<SWITCH: "switch">|
+	<DEAFULT: "default">|
+	<CASE:"case">
 	// À compléter au besoin
 }
 
@@ -138,7 +141,8 @@ TOKEN :
     > |
     <#EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >|
 
-    <SIGNATURETYPE:<IDENTIFIER> (" ")+ <IDENTIFIER>>
+    <SIGNATURETYPE:<IDENTIFIER> <WHITESPACE> <IDENTIFIER>>|
+    <WHITESPACE:(" ")+>
 }
 
 
@@ -148,14 +152,15 @@ TOKEN :
 //
 
 // à compléter
-void Stmt() : { }
+void Stmt() #void: { }
 {
-	AssignStmt() |
+	AssignStmt() <SEMICOLON> |
     WhileStmt()|
     DoWhileStmt()|
-    IfStmt()|
+    IfStmt() |
     ForStmt()|
-	ReturnStmt()
+	ReturnStmt()|
+	SwitchStmt()
 
 }
 
@@ -164,7 +169,7 @@ ASTProgram Program() : { }
 	Block() <EOF> { return jjtThis;  }
 }
 
-void Block() : { }
+void Block() #void : { }
 {
 	 (Stmt())+
 }
@@ -172,7 +177,7 @@ void Block() : { }
 // à finir -- commencez ici!
 void AssignStmt() : { }
 {
-    Identifier() <ASSIGN> Expr() <SEMICOLON>
+    Identifier() <ASSIGN> Expr()
 }
 
 void Expr()#void : {}
@@ -227,27 +232,28 @@ void WhileStmt():{}
     BlockOrStatement()
 }
 
-void BlockOrStatement():{}
+void BlockOrStatement() #void:{}
 {
-    <LACC> Block() <RACC>
-    |Stmt()
+	<LACC> Block() <RACC>| Stmt()
 }
 
 void DoWhileStmt():{}
 {
-    <DO> <LACC> Block() <RACC> <WHILE> <LPAREN> Expr() <RPAREN> <SEMICOLON>
+    <DO> BlockOrStatement() <WHILE> <LPAREN> Expr() <RPAREN> <SEMICOLON>
 }
 
 void IfStmt():{}
 {
     <IF> <LPAREN> Expr() <RPAREN>
     BlockOrStatement()
-    ElseStmt()
+    (LOOKAHEAD(2) ElseExpr())?
 }
 
-void ElseStmt():{}
+
+
+void ElseExpr():{}
 {
-    (LOOKAHEAD(2) <ELSE> BlockOrStatement())?
+    <ELSE>  Stmt()
 }
 
 void ForStmt():{}
@@ -356,3 +362,23 @@ void ParExpr()#void:{}
 {
     (<LPAREN> OpExprPrio1() <RPAREN>)#Parenthèses | BasicExpr()
 }
+
+void SwitchStmt():{}
+{
+    <SWITCH> <LPAREN> Expr() <RPAREN> <LACC>
+        (CaseExpr())+
+        (DefaultExpr())?
+
+    <RACC>
+}
+
+void CaseExpr():{}
+{
+	<CASE> Expr() <COLON> BlockOrStatement()
+}
+
+void DefaultExpr():{}
+{
+	<DEAFULT> <COLON> BlockOrStatement()
+}
+
