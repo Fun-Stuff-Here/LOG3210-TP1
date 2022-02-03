@@ -289,57 +289,52 @@ void AndOrExpr()#void: {}
 
 void ComparisonExpr()#void:{}
 {
-    (OpExprPrio3() (<COMPARE> OpExprPrio3())*)#ComparisonExpr(>1)
+    (AddOrSubExpr() (<COMPARE> AddOrSubExpr())*)#ComparisonExpr(>1)
 }
 
-void OpExprPrio3()#void:{}
+void AddOrSubExpr()#void:{}
 {
-    (OpExprPrio4() (AddExpr() | SubExpr())*)#AddOrSub(>1)
+    (MultOrDivExpr() (AddExpr() | SubExpr())*)#AddOrSub(>1)
 }
 
-void OpExprPrio4()#void:{}
+void MultOrDivExpr()#void:{} //mult or div
 {
-    (OpExprPrio5() (MultExpr() | DivExpr())*)#MultiplicationOrDiv(>1)
+    (NegExpr() (MultExpr() | DivExpr())*)#MultiplicationOrDiv(>1)
 }
 
-void OpExprPrio5()#void:{}
+void NegExpr()#void:{} //negatif
 {
-   (<MINUS>)*#Négatif(>0) OpExprPrio6() //voit pas le minus????
+   (<MINUS>)* NotExpr()
 }
 
-void OpExprPrio6()#void:{}
+void NotExpr()#void:{} //non logique
 {
-    (<NOT>)*#Non_logique(>0) OpExprPrio7()//on voit pas le non logique??
+    (<NOT>)* ParenExpr()//on voit pas le non logique??
 }
 
-void OpExprPrio7()#void:{}
+void ParenExpr()#void:{} //parenthèses
 {
-    ParExpr()
+    (<LPAREN> AndOrExpr() <RPAREN>)#Parenthèses(>0) | BasicExpr()
 }
 
 void AddExpr()#void:{}
 {
-   <PLUS> OpExprPrio4()
+    <PLUS> MultOrDivExpr()
 }
 
 void SubExpr()#void:{}
 {
-    <MINUS> OpExprPrio4()
+    <MINUS> MultOrDivExpr()
 }
 
 void MultExpr()#void:{}
 {
-    <FOIS> OpExprPrio5()
+    <FOIS> NegExpr()
 }
 
 void DivExpr()#void:{}
 {
-    <DIV> OpExprPrio5()
-}
-
-void ParExpr()#void:{}
-{
-    (<LPAREN> AndOrExpr() <RPAREN>)#Parenthèses(>0) | BasicExpr()
+    <DIV> NegExpr()
 }
 
 void SwitchStmt():{}
