@@ -1,2 +1,2 @@
 // pour faire des tests
-a = (b+c);
+a = !c;
