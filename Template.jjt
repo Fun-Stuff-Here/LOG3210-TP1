@@ -277,30 +277,29 @@ void ReturnStmt():{}
 //    <SIGNATURETYPE>
 //}
 
-void OpExpr()#void:{}
+void OpExpr():{}
 {
-    OpExprPrio1()
+    AndOrExpr()
 }
 
-void OpExprPrio1()#void: {}
+void AndOrExpr()#void: {}
 {
-
-    OpExprPrio2() LogicExpr()
+    (ComparisonExpr() (<LOGIC> ComparisonExpr())*)#AndOrExpr(>1)
 }
 
-void OpExprPrio2()#void:{}
+void ComparisonExpr()#void:{}
 {
-    OpExprPrio3() CompExpr()
+    (OpExprPrio3() (<COMPARE> OpExprPrio3())*)#ComparisonExpr(>1)
 }
 
 void OpExprPrio3()#void:{}
 {
-    OpExprPrio4() AddOrSubExpr()
+    (OpExprPrio4() (AddExpr() | SubExpr())*)#AddOrSub(>1)
 }
 
 void OpExprPrio4()#void:{}
 {
-    OpExprPrio5() MultOrDivExpr()
+    (OpExprPrio5() (MultExpr() | DivExpr())*)#MultiplicationOrDiv(>1)
 }
 
 void OpExprPrio5()#void:{}
@@ -318,49 +317,29 @@ void OpExprPrio7()#void:{}
     ParExpr()
 }
 
-void LogicExpr()#void:{}
-{
-    (<LOGIC> OpExprPrio2() LogicExpr())?#Logique(>0)
-}
-
-void CompExpr()#void:{}
-{
-    (<COMPARE> OpExprPrio3() CompExpr())?#Comparaison(>0)
-}
-
-void AddOrSubExpr()#void:{}
-{
-    ((AddExpr() | SubExpr()) AddOrSubExpr())?
-}
-
-void AddExpr()#Addition:{}
+void AddExpr()#void:{}
 {
    <PLUS> OpExprPrio4()
 }
 
-void SubExpr()#Soustraction:{}
+void SubExpr()#void:{}
 {
     <MINUS> OpExprPrio4()
 }
 
-void MultOrDivExpr()#void:{}
-{
-    ((MultExpr() | DivExpr()) MultOrDivExpr())?
-}
-
-void MultExpr()#Multiplication:{}
+void MultExpr()#void:{}
 {
     <FOIS> OpExprPrio5()
 }
 
-void DivExpr()#Division:{}
+void DivExpr()#void:{}
 {
     <DIV> OpExprPrio5()
 }
 
 void ParExpr()#void:{}
 {
-    (<LPAREN> OpExprPrio1() <RPAREN>)#Parenthèses | BasicExpr()
+    (<LPAREN> AndOrExpr() <RPAREN>)#Parenthèses(>0) | BasicExpr()
 }
 
 void SwitchStmt():{}
