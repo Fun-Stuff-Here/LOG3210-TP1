@@ -182,7 +182,7 @@ void AssignStmt() : { }
 
 void Expr()#void : {}
 {
-    OpExpr() //| LamdaFunctionExpr()
+    LOOKAHEAD(2) OpExpr() | LamdaFunctionExpr()
 }
 
 void BoolValue():{}
@@ -253,7 +253,7 @@ void IfStmt():{}
 
 void ElseExpr():{}
 {
-    <ELSE>  Stmt()
+    <ELSE> Stmt()
 }
 
 void ForStmt():{}
@@ -267,17 +267,17 @@ void ReturnStmt():{}
     <RETURN> Expr() <SEMICOLON>
 }
 
-//void LamdaFunctionExpr():{} à remettre
-//{
-//    <LPAREN> (SignatureTypeExpr()(<COMMA> SignatureTypeExpr())*)? <RPAREN> (<ARROW> BlockOrStatement()|Stmt())
-//}
-//
-//void SignatureTypeExpr():{} à remettre
-//{
-//    <SIGNATURETYPE>
-//}
+void LamdaFunctionExpr():{}
+{
+    <LPAREN> (SignatureTypeExpr()(<COMMA> SignatureTypeExpr())*)? <RPAREN> (<ARROW> BlockOrStatement()|Stmt())
+}
 
-void OpExpr():{}
+void SignatureTypeExpr():{}
+{
+    <SIGNATURETYPE>
+}
+
+void OpExpr()#void:{}
 {
     AndOrExpr()
 }
@@ -297,24 +297,24 @@ void AddOrSubExpr()#void:{}
     (MultOrDivExpr() (AddExpr() | SubExpr())*)#AddOrSub(>1)
 }
 
-void MultOrDivExpr()#void:{} //mult or div
+void MultOrDivExpr()#void:{}
 {
-    (NegExpr() (MultExpr() | DivExpr())*)#MultiplicationOrDiv(>1)
+    (NegExpr() (MultExpr() | DivExpr())*)#MultOrDiv(>1)
 }
 
-void NegExpr()#void:{} //negatif
+void NegExpr()#void:{}
 {
-   (<MINUS>)* NotExpr()
+   (<MINUS>)* NotExpr() //marche pas.
 }
 
-void NotExpr()#void:{} //non logique
+void NotExpr()#void:{}
 {
-    (<NOT>)* ParenExpr()//on voit pas le non logique??
+   (<NOT>)*#Not(>0) ParenExpr() //on voit pas le non logique??
 }
 
-void ParenExpr()#void:{} //parenthèses
+void ParenExpr()#void:{}
 {
-    (<LPAREN> AndOrExpr() <RPAREN>)#Parenthèses(>0) | BasicExpr()
+    (<LPAREN> AndOrExpr() <RPAREN>)#Parenthesis(>0) | BasicExpr()
 }
 
 void AddExpr()#void:{}
