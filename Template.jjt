@@ -294,12 +294,12 @@ void ComparisonExpr()#void:{}
 
 void AddSubExpr()#void:{}
 {
-    (MultDivExpr() (AddExpr() | SubExpr())*)#AddSub(>1)
+    (MultDivExpr() (AddExpr() | SubExpr())*)#AddSubExpr(>1)
 }
 
 void MultDivExpr()#void:{}
 {
-    (NegExpr() (MultExpr() | DivExpr())*)#MultDiv(>1)
+    (NegExpr() (MultExpr() | DivExpr())*)#MultDivExpr(>1)
 }
 
 void NegExpr()#void:{}
@@ -324,7 +324,7 @@ void LogicalNot():{}
 
 void ParenExpr()#void:{}
 {
-    (<LPAREN> AndOrExpr() <RPAREN>)#Parenthesis(>0) | BasicExpr()
+    (<LPAREN> AndOrExpr() <RPAREN>)#ParenExpr(>0) | BasicExpr()
 }
 
 void AddExpr()#void:{}
