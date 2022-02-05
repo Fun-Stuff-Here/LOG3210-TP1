@@ -76,8 +76,8 @@ MORE :
 // Keywords
 TOKEN :
 {
-	< PRINT: "print" > |
-	< INPUT: "input" >|
+	<PRINT: "print" > |
+	<INPUT: "input" >|
 	<WHILE:"while" >|
 	<DO:"do">|
 	<IF:"if">|
@@ -180,37 +180,25 @@ void AssignStmt() : { }
     Identifier() <ASSIGN> Expr()
 }
 
-void Expr() #void: {}
+void Expr()#void : {}
+
 {
-    IntExpr() | RealExpr() | BoolExpr() |LamdaFunctionExpr()
+    LOOKAHEAD(2) OpExpr() | LamdaFunctionExpr()
 }
 
-void BoolExpr():{}
+void BoolValue():{}
 {
-<BOOLEAN>
+    <BOOLEAN>
 }
 
-void RealExpr():{}
+void RealValue():{}
 {
     <REAL>
 }
 
-void IntExpr() : { }
+void BasicExpr()#void:{}
 {
-    IntLogicExpr()
-}
-
-void IntLogicExpr() #void:{}
-{
-    IntBasicExpr() (LOOKAHEAD(2)
-         <LOGIC> IntBasicExpr()
-    )*
-}
-
-void IntBasicExpr() #void: { }
-{
-	Identifier() |
-	IntValue()
+    Identifier() | IntValue() | RealValue() | BoolValue()
 }
 
 void Identifier() : { }
@@ -231,7 +219,7 @@ void WhileStmt():{}
 
 void BlockOrStatement() #void:{}
 {
-<LACC> Block() <RACC>| Stmt()
+	<LACC> Block() <RACC>| Stmt()
 }
 
 void DoWhileStmt():{}
@@ -250,7 +238,7 @@ void IfStmt():{}
 
 void ElseExpr():{}
 {
-    <ELSE>  Stmt()
+    <ELSE> Stmt()
 }
 
 void ForStmt():{}
@@ -274,6 +262,76 @@ void SignatureTypeExpr():{}
     <SIGNATURETYPE>
 }
 
+void OpExpr()#void:{}
+{
+    AndOrExpr()
+}
+
+void AndOrExpr()#void: {}
+{
+    (ComparisonExpr() (<LOGIC> ComparisonExpr())*)#AndOrExpr(>1)
+}
+
+void ComparisonExpr()#void:{}
+{
+    (AddSubExpr() (<COMPARE> AddSubExpr())*)#ComparisonExpr(>1)
+}
+
+void AddSubExpr()#void:{}
+{
+    (MultDivExpr() (AddExpr() | SubExpr())*)#AddSubExpr(>1)
+}
+
+void MultDivExpr()#void:{}
+{
+    (NegExpr() (MultExpr() | DivExpr())*)#MultDivExpr(>1)
+}
+
+void NegExpr()#void:{}
+{
+   ((Negative())? NotExpr())#NegExpr(>1)
+}
+
+void Negative():{}
+{
+    <MINUS> (Negative())?
+}
+
+void NotExpr()#void:{}
+{
+   ((LogicalNot())? ParenExpr())#NotExpr(>1)
+}
+
+void LogicalNot():{}
+{
+    <NOT> (LogicalNot())?
+}
+
+void ParenExpr()#void:{}
+{
+    (<LPAREN> AndOrExpr() <RPAREN>)#ParenExpr(>0) | BasicExpr()
+}
+
+void AddExpr()#void:{}
+{
+    <PLUS> MultDivExpr()
+}
+
+void SubExpr()#void:{}
+{
+    <MINUS> MultDivExpr()
+}
+
+void MultExpr()#void:{}
+{
+    <FOIS> NegExpr()
+}
+
+void DivExpr()#void:{}
+{
+    <DIV> NegExpr()
+}
+
 void SwitchStmt():{}
 {
     <SWITCH> <LPAREN> Expr() <RPAREN> <LACC>
@@ -285,11 +343,11 @@ void SwitchStmt():{}
 
 void CaseExpr():{}
 {
-<CASE> Expr() <COLON> BlockOrStatement()
+	<CASE> Expr() <COLON> BlockOrStatement()
 }
 
 void DefaultExpr():{}
 {
-<DEAFULT> <COLON> BlockOrStatement()
+	<DEAFULT> <COLON> BlockOrStatement()
 }
 
