@@ -85,7 +85,7 @@ TOKEN :
 	<ELSEIF: <ELSE>" "<IF>> |
 	<FOR:"for">|
 	<RETURN:"return">|
-	<BOOLEAN: "true"|"false">|
+	<BOOLEAN: "true"|"false" >|
 	<SWITCH: "switch">|
 	<DEAFULT: "default">|
 	<CASE:"case">
@@ -155,12 +155,13 @@ TOKEN :
 // à compléter
 void Stmt() #void: { }
 {
+
 	AssignStmt() <SEMICOLON> |
     WhileStmt()|
     DoWhileStmt()|
     IfStmt() |
     ForStmt()|
-	ReturnStmt()|
+	ReturnStmt() <SEMICOLON>|
 	SwitchStmt()
 
 }
@@ -199,8 +200,9 @@ void RealValue():{}
 
 void BasicExpr()#void:{}
 {
-    Identifier() | IntValue() | RealValue() | BoolValue()
+     BoolValue() | IntValue() | RealValue() | Identifier()
 }
+
 
 void Identifier() : { }
 {
@@ -259,8 +261,9 @@ void ForStmt():{}
 
 void ReturnStmt():{}
 {
-    <RETURN> Expr() <SEMICOLON>
+    <RETURN> (Expr())?
 }
+
 
 void LamdaFunctionExpr():{}
 {
@@ -319,7 +322,7 @@ void LogicalNot():{}
 
 void ParenExpr()#void:{}
 {
-    (<LPAREN> AndOrExpr() <RPAREN>)#ParenExpr(>0) | BasicExpr()
+   (<LPAREN> AndOrExpr() <RPAREN>)#ParenExpr(>0) | BasicExpr()
 }
 
 void AddExpr()#void:{}
