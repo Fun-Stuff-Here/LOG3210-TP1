@@ -82,6 +82,7 @@ TOKEN :
 	<DO:"do">|
 	<IF:"if">|
 	<ELSE:"else">|
+	<ELSEIF: <ELSE>" "<IF>> |
 	<FOR:"for">|
 	<RETURN:"return">|
 	<BOOLEAN: "true"|"false">|
@@ -219,7 +220,7 @@ void WhileStmt():{}
 
 void BlockOrStatement() #void:{}
 {
-	<LACC> Block() <RACC>| Stmt()
+	(<LACC> Block() <RACC>)| Stmt()
 }
 
 void DoWhileStmt():{}
@@ -231,14 +232,23 @@ void IfStmt():{}
 {
     <IF> <LPAREN> Expr() <RPAREN>
     BlockOrStatement()
-    (LOOKAHEAD(2) ElseExpr())?
+    (LOOKAHEAD(2) ElseOrElseIfExpr())*
 }
 
 
+void ElseOrElseIfExpr()#void :{}
+{
+    ElseIFExpr() | ElseExpr()
+}
 
 void ElseExpr():{}
 {
-    <ELSE> Stmt()
+    <ELSE> BlockOrStatement()
+}
+
+void ElseIFExpr():{}
+{
+    <ELSEIF>  <LPAREN> Expr() <RPAREN> BlockOrStatement()
 }
 
 void ForStmt():{}

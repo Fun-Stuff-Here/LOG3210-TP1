@@ -1,2 +1,8 @@
 // pour faire des tests
-a = !c;
+if (0) {
+    a = 0;
+}
+else if (b) {
+    a = 2;
+}
+
